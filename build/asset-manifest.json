@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.06be13e6.css",
+    "main.js": "/static/js/main.e4a921a6.js",
+    "static/media/piggy-bank.png": "/static/media/piggy-bank.67f7483c78903f4528e4.png",
+    "index.html": "/index.html",
+    "main.06be13e6.css.map": "/static/css/main.06be13e6.css.map",
+    "main.e4a921a6.js.map": "/static/js/main.e4a921a6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.06be13e6.css",
+    "static/js/main.e4a921a6.js"
+  ]
+}
