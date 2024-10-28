@@ -18,39 +18,48 @@ function Register() {
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState('');
   const [superAmount, setSuperAmount] = useState('');
+  const [retirementAge, setRetirementAge] = useState('');
+  const [retirementGoal, setRetirementGoal] = useState('');
   const [error, setError] = useState('');
-  
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (password === confirmPassword) {
-      
-      const body = JSON.stringify({
-        email: email, 
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-        dob: dob,
-        superAmount: superAmount
+
+      const registrationData = JSON.stringify({
+        email,
+        password,
+        firstName,
+        lastName,
+        dob,
+        superAmount,
+        retirementAge,
+        retirementGoal
       });
-
+  
       try {
-        const response = await fetch('https://vephmwzfaa.execute-api.us-east-1.amazonaws.com/register', {
+        const response = await fetch('https://zcovudlkqg.execute-api.us-east-1.amazonaws.com/NewUser', {
           method: 'POST',
+          body: registrationData,
           headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ body })
+            'Content-type' : 'application/json'
+          }
         });
-
+  
+        // Check if the response is ok
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
         const data = await response.json();
-        
+  
         if (data.success) {
-          console.log('Registration successful:', data.message);
-          navigate('/login?message=You have successful registration. Please log in.');
+          navigate('/login?message=You have successfully registered. Please log in.');
         } else {
           setError(data.message);
-          console.log('Registration failed:', data.message);
         }
       } catch (error) {
         setError('An error occurred while registering.');
@@ -58,16 +67,17 @@ function Register() {
       }
     } else {
       setError('Passwords do not match');
-      console.log('Passwords do not match');
     }
   };
+  
+  
 
   return (
     <div className="flex flex-col items-center justify-center pt-2">
       <div className='w-full max-w-3xl p-8 bg-white text-black rounded shadow'>
         <h2 className="text-2xl font-bold text-black mb-6">Register</h2>
         <form onSubmit={handleSubmit}>
-        {error && (
+          {error && (
             <div className="mb-4 text-red-500">
               <p>{error}</p>
             </div>
@@ -122,6 +132,32 @@ function Register() {
                 type="number"
                 value={superAmount}
                 onChange={(e) => setSuperAmount(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-black text-sm font-bold mb-2" htmlFor="retirementAge">
+                Retirement Age
+              </label>
+              <input
+                className="w-full px-3 py-2 border border-slate-800 rounded"
+                id="retirementAge"
+                type="number"
+                value={retirementAge}
+                onChange={(e) => setRetirementAge(e.target.value)}
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-black text-sm font-bold mb-2" htmlFor="retirementGoal">
+                Retirement Goal
+              </label>
+              <input
+                className="w-full px-3 py-2 border border-slate-800 rounded"
+                id="retirementGoal"
+                type="number"
+                value={retirementGoal}
+                onChange={(e) => setRetirementGoal(e.target.value)}
                 required
               />
             </div>

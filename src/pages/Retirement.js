@@ -1,37 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-function Retirement({ userData })  {
-
+function Retirement({ userData }) {
   const currentSuperannuation = userData?.superannuationBalance || 0;
 
-  // Initialize state with user data if available, otherwise use empty values
   const [salary, setSalary] = useState('');
   const [contributionRate, setContributionRate] = useState(userData?.employerContributionRate || 11);
   const [retirementAge, setRetirementAge] = useState(userData?.retirementAge || '');
   const [additionalContributions, setAdditionalContributions] = useState(userData?.additionalContributions || '');
   const [contributionFrequency, setContributionFrequency] = useState(userData?.contributionFrequency || 'yearly');
-  
   const [totalSuperDisplay, setTotalSuperDisplay] = useState(0);
   const [totalUserContributionDisplay, setTotalUserContributionDisplay] = useState('');
   const [totalEmployerContributionDisplay, setTotalEmployerContributionDisplay] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); // State for success message
 
   const calculateSavings = () => {
-    
     const dob = new Date(userData.DOB);
     const today = new Date();
     const currentAge = today.getFullYear() - dob.getFullYear();
     const yearsToRetire = retirementAge - currentAge;
 
     if (yearsToRetire < 0) {
-      setError("Retirement age must be greater than your current age.");
+      setError('Retirement age must be greater than your current age.');
       return;
     }
 
     let contributionMultiplier = 1;
     switch (contributionFrequency) {
       case 'weekly':
-        contributionMultiplier = 52; 
+        contributionMultiplier = 52;
         break;
       case 'monthly':
         contributionMultiplier = 12;
@@ -60,31 +57,38 @@ function Retirement({ userData })  {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const retirementGoal = Number(totalSuperDisplay);
+
+    const requestBody = {
+      email: userData.email,
+      retirementGoal: retirementGoal,
+    };
+
     try {
-      const response = await fetch('http://localhost:8000/retirementGoal', {
+      const response = await fetch('https://vxjpeqf9wb.execute-api.us-east-1.amazonaws.com/SuperRetirement', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          salary,
-          contributionRate,
-          additionalContributions,
-          totalSuperDisplay,
+          body: JSON.stringify(requestBody)
         }),
       });
 
-      const data = await response.json();
+      const results = await response.json();
+      const data = await JSON.parse(results.body);
 
       if (data.success) {
-        console.log('Retirement goal saved:', data.message);
+        setSuccessMessage('Retirement goal saved successfully!'); // Set success message
+        setError(''); // Clear any previous errors
       } else {
-        setError(data.message);
-        console.log('Error saving retirement goal:', data.message);
+        setError(data.message || 'Error saving retirement goal.');
+        setSuccessMessage(''); // Clear success message if error occurs
       }
     } catch (error) {
       setError('An error occurred while saving your retirement goal.');
-      console.error('Error:', error);
+      setSuccessMessage(''); // Clear success message if error occurs
     }
   };
 
@@ -128,16 +132,6 @@ function Retirement({ userData })  {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Retirement Age</label>
-              <input
-                type="number"
-                value={retirementAge}
-                onChange={(e) => setRetirementAge(e.target.value)}
-                className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium text-gray-700">Contribution Frequency</label>
               <select
                 value={contributionFrequency}
@@ -150,6 +144,16 @@ function Retirement({ userData })  {
                 <option value="yearly">Yearly</option>
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Retirement Age</label>
+              <input
+                type="number"
+                value={retirementAge}
+                onChange={(e) => setRetirementAge(e.target.value)}
+                className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm"
+              />
+            </div>
           </div>
 
           <button
@@ -160,7 +164,6 @@ function Retirement({ userData })  {
           </button>
         </>
       ) : (
-        // If no user data exists, show a form to fill out
         <div>
           <p>Please fill out the form to start planning for your retirement.</p>
         </div>
@@ -173,7 +176,7 @@ function Retirement({ userData })  {
 
           <table className="table-auto w-full mt-4 text-left">
             <thead>
-              <tr className='bg-blue-500 text-white'>
+              <tr className="bg-blue-500 text-white">
                 <th className="px-4 py-2">Description</th>
                 <th className="px-4 py-2">Amount ($)</th>
               </tr>
@@ -210,8 +213,9 @@ function Retirement({ userData })  {
       )}
 
       {error && <p className="text-red-500 mt-4">{error}</p>}
+      {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>} {/* Display success message */}
     </div>
   );
-};
+}
 
 export default Retirement;

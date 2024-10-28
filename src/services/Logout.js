@@ -8,7 +8,7 @@ function Logout () {
   useEffect(() => {
     localStorage.removeItem('UserLogin'); 
     navigate('/');
-  }, []);
+  }, [navigate]);
 
   return (
     <div>

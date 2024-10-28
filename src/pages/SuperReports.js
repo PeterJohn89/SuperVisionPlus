@@ -8,7 +8,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 function SuperReports({ userData }) {
   const [retirementGoalDisplay, setRetirementGoalDisplay] = useState('');
-  const [superannuationBalanceDisplay, setSuperannuationBalanceDisplay] = useState('');
 
   const [data, setData] = useState({
     labels: [], 
@@ -52,7 +51,6 @@ function SuperReports({ userData }) {
       }
 
       setRetirementGoalDisplay(retirementGoal);
-      setSuperannuationBalanceDisplay(initialBalance);
       setData({
         labels: years,
         datasets: [

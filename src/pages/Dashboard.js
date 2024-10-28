@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import SuperVision from '../pages/SuperVision';
-import Retirement from '../pages/Retirement';
-import SuperReports from '../pages/SuperReports';
-import YourProfile from '../pages/YourProfile';
-import Logout from '../services/Logout';
+import { useNavigate } from 'react-router-dom';
+import SuperVision from '../pages/SuperVision.js';
+import Retirement from '../pages/Retirement.js';
+import SuperReports from '../pages/SuperReports.js';
+import YourProfile from '../pages/YourProfile.js';
+import SuperRiskProfiler from '../pages/SuperRiskProfiler.js';
+import Logout from '../services/Logout.js';
 import defaultProfile from '../assets/images/defaultProfile.jpg';
+
 
 function Dashboard() {
 
@@ -12,9 +15,16 @@ function Dashboard() {
   const [currentUser, setCurrentUser] = useState();
   const [profileImage, setProfileImage] = useState();
 
+  const navigate = useNavigate();
   // When component initiates run this api call
   useEffect(() => {
+
+    // Check if user is login in
     const userSession = JSON.parse(localStorage.getItem('userSession'));
+    if(userSession && userSession.isUserLoggin){
+      navigate('/dashboard'); 
+    }
+
     
     if (userSession) {
       const fetchUserData = async () => {
@@ -30,11 +40,10 @@ function Dashboard() {
           const results = await response.json();
           const data = await JSON.parse(results.body);
 
-          console.log(data.data);
-
           if (data.success) {
             setCurrentUser(data.data);
-            setProfileImage(data.data.profileImg);
+            console.log(data.data);
+            setProfileImage(data.data.profileImage);
           } else {
             console.error('Error:', data.message);
           }
@@ -44,7 +53,7 @@ function Dashboard() {
       };
       fetchUserData();
     }
-  }, []); 
+  }, [navigate]); 
   
 
   const renderActiveComponent = () => {
@@ -55,6 +64,8 @@ function Dashboard() {
         return <Retirement userData={currentUser} />;
       case 'Super Reports':
         return <SuperReports userData={currentUser} />;
+      case 'Super Risk Profiler':
+        return <SuperRiskProfiler userData={currentUser} />;
       case 'Your Profile':
         return <YourProfile userData={currentUser} />;
       case 'Logout':
@@ -110,6 +121,14 @@ function Dashboard() {
                 className={getClass('Super Retirement')}
               >
                 Super Retirement
+              </button>
+            </li>
+            <li className="mb-2">
+              <button
+                onClick={() => setActiveSection('Super Risk Profiler')}
+                className={getClass('Super Risk Profiler')}
+              >
+                Super Risk Profiler
               </button>
             </li>
             <li className="mb-2">

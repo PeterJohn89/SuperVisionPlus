@@ -1,0 +1,14 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+        "name": "supervisionplus",
+        "image": "287221742729.dkr.ecr.us-east-1.amazonaws.com/s3793762-supervisionplus:latest",
+        "Update": "true"
+    },
+    "Ports": [
+        {
+            "ContainerPort": "80"
+        }
+    ],
+    "Logging": "/var/log/nginx"
+}
