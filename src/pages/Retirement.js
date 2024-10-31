@@ -14,6 +14,7 @@ function Retirement({ userData }) {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); // State for success message
 
+  // Calculate Retirement Savings
   const calculateSavings = () => {
     const dob = new Date(userData.DOB);
     const today = new Date();
@@ -80,15 +81,15 @@ function Retirement({ userData }) {
       const data = await JSON.parse(results.body);
 
       if (data.success) {
-        setSuccessMessage('Retirement goal saved successfully!'); // Set success message
-        setError(''); // Clear any previous errors
+        setSuccessMessage('Retirement goal saved successfully!');
+        setError('');
       } else {
         setError(data.message || 'Error saving retirement goal.');
-        setSuccessMessage(''); // Clear success message if error occurs
+        setSuccessMessage(''); 
       }
     } catch (error) {
       setError('An error occurred while saving your retirement goal.');
-      setSuccessMessage(''); // Clear success message if error occurs
+      setSuccessMessage('');
     }
   };
 
@@ -160,7 +161,7 @@ function Retirement({ userData }) {
             onClick={calculateSavings}
             className="bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition"
           >
-            Calculate Retirement Savings
+            Calculate Retirement Goal
           </button>
         </>
       ) : (

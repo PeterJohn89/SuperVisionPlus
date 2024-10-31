@@ -97,31 +97,7 @@ function SuperReports({ userData }) {
         Download Report
       </button>
 
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-2">Investment Insights</h2>
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr>
-              <th className="border-b-2 border-gray-300 px-4 py-2 text-left">Investment Choice</th>
-              <th className="border-b-2 border-gray-300 px-4 py-2 text-left">Impact on Wealth ($)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border-b border-gray-300 px-4 py-2">High Growth Fund</td>
-              <td className="border-b border-gray-300 px-4 py-2">+ $10,000</td>
-            </tr>
-            <tr>
-              <td className="border-b border-gray-300 px-4 py-2">Balanced Fund</td>
-              <td className="border-b border-gray-300 px-4 py-2">+ $5,000</td>
-            </tr>
-            <tr>
-              <td className="border-b border-gray-300 px-4 py-2">Conservative Fund</td>
-              <td className="border-b border-gray-300 px-4 py-2">+ $2,000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+     
     </div>
   );
 };

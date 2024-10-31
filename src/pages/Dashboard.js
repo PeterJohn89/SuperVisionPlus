@@ -4,57 +4,61 @@ import SuperVision from '../pages/SuperVision.js';
 import Retirement from '../pages/Retirement.js';
 import SuperReports from '../pages/SuperReports.js';
 import YourProfile from '../pages/YourProfile.js';
-import SuperRiskProfiler from '../pages/SuperRiskProfiler.js';
 import Logout from '../services/Logout.js';
 import defaultProfile from '../assets/images/defaultProfile.jpg';
 
-
 function Dashboard() {
-
   const [activeSection, setActiveSection] = useState('SuperVision');
   const [currentUser, setCurrentUser] = useState();
   const [profileImage, setProfileImage] = useState();
 
   const navigate = useNavigate();
+
+  // Function to fetch user data
+  const fetchUserData = async () => {
+    const userSession = JSON.parse(localStorage.getItem('userSession'));
+    if (userSession) {
+      const email = userSession.email;
+      try {
+        const response = await fetch(`https://ntv2nwb8ri.execute-api.us-east-1.amazonaws.com/GetUserData?email=${email}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const results = await response.json();
+        const data = await JSON.parse(results.body);
+
+        if (data.success) {
+          setCurrentUser(data.data);
+          console.log(data.data);
+          setProfileImage(data.data.profileImage);
+        } else {
+          console.error('Error:', data.message);
+        }
+      } catch (err) {
+        console.error('Error:', err.message);
+      }
+    }
+  };
+
   // When component initiates run this api call
   useEffect(() => {
-
-    // Check if user is login in
     const userSession = JSON.parse(localStorage.getItem('userSession'));
-    if(userSession && userSession.isUserLoggin){
-      navigate('/dashboard'); 
+    if (userSession && userSession.isUserLoggin) {
+      navigate('/dashboard');
     }
 
-    
-    if (userSession) {
-      const fetchUserData = async () => {
-        const email = userSession.email;
-        try {
-          const response = await fetch(`https://ntv2nwb8ri.execute-api.us-east-1.amazonaws.com/GetUserData?email=${email}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type' : 'application/json',
-            }
-          });
+    fetchUserData();
+  }, [navigate]);
 
-          const results = await response.json();
-          const data = await JSON.parse(results.body);
-
-          if (data.success) {
-            setCurrentUser(data.data);
-            console.log(data.data);
-            setProfileImage(data.data.profileImage);
-          } else {
-            console.error('Error:', data.message);
-          }
-        } catch (err) {
-          console.error('Error:', err.message);
-        }
-      };
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    if (section === 'SuperVision') {
       fetchUserData();
     }
-  }, [navigate]); 
-  
+  };
 
   const renderActiveComponent = () => {
     switch (activeSection) {
@@ -64,8 +68,6 @@ function Dashboard() {
         return <Retirement userData={currentUser} />;
       case 'Super Reports':
         return <SuperReports userData={currentUser} />;
-      case 'Super Risk Profiler':
-        return <SuperRiskProfiler userData={currentUser} />;
       case 'Your Profile':
         return <YourProfile userData={currentUser} />;
       case 'Logout':
@@ -90,7 +92,7 @@ function Dashboard() {
         {currentUser ? (
           <div className="flex items-center mb-8">
             <img
-              src={ profileImage || defaultProfile }
+              src={profileImage || defaultProfile}
               alt={`${currentUser.firstName} ${currentUser.lastName}`}
               className="w-16 h-16 rounded-full mr-4"
             />
@@ -109,7 +111,7 @@ function Dashboard() {
           <ul>
             <li className="mb-2">
               <button
-                onClick={() => setActiveSection('SuperVision')}
+                onClick={() => handleSectionChange('SuperVision')}
                 className={getClass('SuperVision')}
               >
                 SuperVision
@@ -117,7 +119,7 @@ function Dashboard() {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveSection('Super Retirement')}
+                onClick={() => handleSectionChange('Super Retirement')}
                 className={getClass('Super Retirement')}
               >
                 Super Retirement
@@ -125,15 +127,7 @@ function Dashboard() {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveSection('Super Risk Profiler')}
-                className={getClass('Super Risk Profiler')}
-              >
-                Super Risk Profiler
-              </button>
-            </li>
-            <li className="mb-2">
-              <button
-                onClick={() => setActiveSection('Super Reports')}
+                onClick={() => handleSectionChange('Super Reports')}
                 className={getClass('Super Reports')}
               >
                 Super Reports
@@ -141,7 +135,7 @@ function Dashboard() {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveSection('Your Profile')}
+                onClick={() => handleSectionChange('Your Profile')}
                 className={getClass('Your Profile')}
               >
                 Your Profile
@@ -149,7 +143,7 @@ function Dashboard() {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => setActiveSection('Logout')}
+                onClick={() => handleSectionChange('Logout')}
                 className={getClass('Logout')}
               >
                 Logout
