@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 function Retirement({ userData }) {
-  const currentSuperannuation = userData?.superannuationBalance || 0;
-
+  
+  // State
   const [salary, setSalary] = useState('');
   const [contributionRate, setContributionRate] = useState(userData?.employerContributionRate || 11);
   const [retirementAge, setRetirementAge] = useState(userData?.retirementAge || '');
@@ -11,21 +11,23 @@ function Retirement({ userData }) {
   const [totalSuperDisplay, setTotalSuperDisplay] = useState(0);
   const [totalUserContributionDisplay, setTotalUserContributionDisplay] = useState('');
   const [totalEmployerContributionDisplay, setTotalEmployerContributionDisplay] = useState('');
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // State for success message
-
-  // Calculate Retirement Savings
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  
   const calculateSavings = () => {
+    // Retirement age
     const dob = new Date(userData.DOB);
     const today = new Date();
     const currentAge = today.getFullYear() - dob.getFullYear();
     const yearsToRetire = retirementAge - currentAge;
-
-    if (yearsToRetire < 0) {
-      setError('Retirement age must be greater than your current age.');
+  
+    // Check retirement age
+    if (yearsToRetire <= 0) {
+      setErrorMessage('Retirement age must be greater than your current age.');
       return;
     }
-
+  
+    // Contribution amount
     let contributionMultiplier = 1;
     switch (contributionFrequency) {
       case 'weekly':
@@ -42,30 +44,43 @@ function Retirement({ userData }) {
         contributionMultiplier = 1;
         break;
     }
-
+  
+    // Employer contribution
     const employerContribution = (salary * contributionRate) / 100;
+  
+    // User contribution
     const userContribution = additionalContributions * contributionMultiplier;
-
+  
+    // Add up total contribution
     const totalEmployerContribution = employerContribution * yearsToRetire;
     const totalUserContributions = userContribution * yearsToRetire;
-    const totalSuperannuation = totalEmployerContribution + totalUserContributions + currentSuperannuation;
+    const totalSuperannuation = totalEmployerContribution + totalUserContributions + Number(userData.superannuationBalance);
 
+    // Ensure totalSuperannuation is a number
+    const totalSuperannuationNumber = Number(totalSuperannuation);
+  
+    // Set calculations
     setTotalUserContributionDisplay(totalUserContributions.toFixed(2));
     setTotalEmployerContributionDisplay(totalEmployerContribution.toFixed(2));
-    setTotalSuperDisplay(totalSuperannuation.toFixed(2));
-    setError('');
+    setTotalSuperDisplay(totalSuperannuationNumber.toFixed(2));
+    setErrorMessage('');
   };
-
+  
+  // Save new Retirement goal
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const retirementGoal = Number(totalSuperDisplay);
-
     const requestBody = {
       email: userData.email,
       retirementGoal: retirementGoal,
+      retirementAge: retirementAge, 
+      employerContributionRate: contributionRate,
+      annualSalary: Number(salary),
+      additionalContributions: Number(additionalContributions),
+      contributionFrequency: contributionFrequency.charAt(0).toUpperCase(), 
     };
 
+    // API call
     try {
       const response = await fetch('https://vxjpeqf9wb.execute-api.us-east-1.amazonaws.com/SuperRetirement', {
         method: 'POST',
@@ -76,19 +91,21 @@ function Retirement({ userData }) {
           body: JSON.stringify(requestBody)
         }),
       });
-
+      
+      // Response
       const results = await response.json();
       const data = await JSON.parse(results.body);
-
+      
+      // Result
       if (data.success) {
         setSuccessMessage('Retirement goal saved successfully!');
-        setError('');
+        setErrorMessage('');
       } else {
-        setError(data.message || 'Error saving retirement goal.');
+        setErrorMessage(data.message || 'Error saving retirement goal.');
         setSuccessMessage(''); 
       }
     } catch (error) {
-      setError('An error occurred while saving your retirement goal.');
+      setErrorMessage('An error occurred while saving your retirement goal.');
       setSuccessMessage('');
     }
   };
@@ -98,6 +115,19 @@ function Retirement({ userData }) {
   return (
     <div className="mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-xl font-semibold mb-4">Your Retirement Plan</h1>
+
+      {/* Messages */}
+      {errorMessage && (
+        <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">
+          {errorMessage}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-4 p-2 bg-green-200 text-green-800 rounded">
+          {successMessage}
+        </div>
+      )}
 
       {hasUserData ? (
         <>
@@ -174,6 +204,10 @@ function Retirement({ userData }) {
         <div className="mt-6 p-4 bg-gray-100 rounded-lg">
           <h2 className="text-lg font-semibold">Your Retirement Plan:</h2>
           <p className="text-sm text-gray-600 mt-2">This is only an estimate, and your super can change based on your salary.</p>
+          <br></br>
+          <p className="text-lg">{userData.firstName}</p>
+          <p className="text-md">Current Age: {new Date().getFullYear() - new Date(userData.DOB).getFullYear()}</p>
+          <p className="text-md mb-4">Years until retirement: {retirementAge - (new Date().getFullYear() - new Date(userData.DOB).getFullYear())}</p>
 
           <table className="table-auto w-full mt-4 text-left">
             <thead>
@@ -183,6 +217,12 @@ function Retirement({ userData }) {
               </tr>
             </thead>
             <tbody>
+            <tr>
+                <td className="border px-4 py-2 border-zinc-300">Your Current Super Balance</td>
+                <td className="border px-4 py-2 border-zinc-300">
+                  ${Number(userData.superannuationBalance).toLocaleString()}
+                </td>
+              </tr>
               <tr>
                 <td className="border px-4 py-2 border-zinc-300">Total Employer Contributions</td>
                 <td className="border px-4 py-2 border-zinc-300">
@@ -213,8 +253,6 @@ function Retirement({ userData }) {
         </div>
       )}
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-      {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>} {/* Display success message */}
     </div>
   );
 }

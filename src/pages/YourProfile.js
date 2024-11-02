@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 const YourProfile = ({ userData }) => {
+  // Set state with user data
   const [profile, setProfile] = useState({
     firstName: userData?.firstName || '',
     lastName: userData?.lastName || '',
@@ -14,11 +15,11 @@ const YourProfile = ({ userData }) => {
     newProfileImage: null,
   });
 
-  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [notification, setMessage] = useState({ message: '', type: '' });
 
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification({ message: '', type: '' }), 3000); // Hide notification after 3 seconds
+  // Show message
+  const showMessage = (message, type) => {
+    setMessage({ message, type });
   };
 
   const handleChange = (e) => {
@@ -29,6 +30,7 @@ const YourProfile = ({ userData }) => {
     }));
   };
 
+  // Attach image function
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     setProfile((prevProfile) => ({
@@ -38,60 +40,71 @@ const YourProfile = ({ userData }) => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    let profileImageUrl = profile.profileImage;
+  // Convert image to Base64
+  const toBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = reader.result.split(',')[1]; // Get the Base64 string part
+        resolve(base64String);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
-if (profile.newProfileImage) {
-  // Convert the new profile image to a Base64 encoded string
-  const newProfileImageBase64 = await toBase64(profile.newProfileImage);
+  // Upload image to backend
+  const handleImageSubmit = async () => {
+    if (!profile.newProfileImage) return;
 
-  // Create the request payload
-  const payload = JSON.stringify({
-    email: profile.email,
-    file: newProfileImageBase64,
-    fileType: profile.newProfileImage.type // Assuming profile.newProfileImage has a `type` property
-  });
+    // Convert new profile image to Base64 encoded string
+    const newProfileImageBase64 = await toBase64(profile.newProfileImage);
 
-  console.log(payload);
-
-  try {
-    const imageResponse = await fetch('https://n4tfhydigh.execute-api.us-east-1.amazonaws.com/SuperImageUpdate', {
-      method: 'POST',
-      body: payload,
-      headers: {
-        'Content-type' : 'application/json'
-      }
+    // Create the request payload
+    const payload = JSON.stringify({
+      email: profile.email,
+      file: newProfileImageBase64,
+      fileType: profile.newProfileImage.type, // Assuming profile.newProfileImage has a `type` property
     });
 
-    const imageData = await imageResponse.json();
+    try {
+      const imageResponse = await fetch('https://n4tfhydigh.execute-api.us-east-1.amazonaws.com/SuperImageUpdate', {
+        method: 'POST',
+        body: payload,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (imageResponse.ok) {
-      profileImageUrl = imageData.imageUrl;
-    } else {
-      showNotification(imageData.message || 'Failed to upload profile image.', 'error');
-      return;
+      const imageData = await imageResponse.json();
+
+      if (imageResponse.ok) {
+        return imageData.imageUrl;
+      } else {
+        showMessage(imageData.message || 'Failed to upload profile image.', 'error');
+        return null;
+      }
+    } catch (error) {
+      showMessage('An error occurred while uploading the profile image.', 'error');
+      console.error('Error:', error);
+      return null;
     }
-  } catch (error) {
-    showNotification('An error occurred while uploading the profile image.', 'error');
-    console.error('Error:', error);
-    return;
-  }
-}
+  };
 
-// Helper function to convert image to Base64
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64String = reader.result.split(',')[1]; // Get the Base64 string part
-      resolve(base64String);
-    };
-    reader.onerror = error => reject(error);
-  });
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    // Get current profile image
+    let profileImageUrl = profile.profileImage;
+
+    if (profile.newProfileImage) {
+      const uploadedImageUrl = await handleImageSubmit();
+      if (uploadedImageUrl) {
+        profileImageUrl = uploadedImageUrl;
+      } else {
+        return;
+      }
+    }
 
     const updateUserPayload = {
       email: profile.email,
@@ -117,12 +130,12 @@ function toBase64(file) {
       const data = await response.json();
 
       if (response.ok) {
-        showNotification('Profile updated successfully!', 'success');
+        showMessage('Profile updated successfully!', 'success');
       } else {
-        showNotification(data.message || 'Profile update failed.', 'error');
+        showMessage(data.message || 'Profile update failed.', 'error');
       }
     } catch (error) {
-      showNotification('An error occurred while updating the profile.', 'error');
+      showMessage('An error occurred while updating the profile.', 'error');
       console.error('Error:', error);
     }
   };

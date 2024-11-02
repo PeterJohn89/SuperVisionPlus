@@ -3,16 +3,18 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 function Login() {
+
+  // State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  // Events
   const navigate = useNavigate();
   const location = useLocation();
-
+  // Local
   const queryParams = new URLSearchParams(location.search);
   const message = queryParams.get('message');
-
+  // Effect
   useEffect(() => {
     var isUserLoggedIn = localStorage.getItem('UserLogin');
     if (isUserLoggedIn) {
@@ -20,6 +22,7 @@ function Login() {
     }
   }, [navigate]);
 
+  // Google API login
   const handleGoogleSuccess = (response) => {
     const token = response.credential;
     localStorage.setItem('googleToken', token);
@@ -29,7 +32,8 @@ function Login() {
   const handleGoogleFailure = () => {
     setErrorMessage('Google sign-in failed. Please try again.');
   };
-
+  
+  // Login Function
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -47,6 +51,7 @@ function Login() {
       const data = await JSON.parse(results.body);
 
       if (data.success) {
+        // Set login session
         localStorage.setItem('userSession', JSON.stringify({ email: data.email, isLoggedIn: true }));
         navigate('/dashboard');
       } else {
@@ -63,19 +68,19 @@ function Login() {
       <div className="flex flex-col items-center justify-center pt-28">
         <div className="w-full max-w-md p-8 bg-white rounded shadow text-black">
           <h2 className="text-2xl font-bold mb-6">Login</h2>
-          
+          {/* Error messages */}
           {errorMessage && (
             <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">
               {errorMessage}
             </div>
           )}
-
+          {/* Other messages */}
           {message && (
             <div className="mb-4 p-2 bg-green-200 text-green-800 rounded">
               {message}
             </div>
           )}
-          
+          {/* Login form */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-black text-sm font-bold mb-2" htmlFor="email">
@@ -110,14 +115,14 @@ function Login() {
               Login
             </button>
           </form>
-
+          {/* Google login button */}
           <div className="my-4">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleFailure}
             />
           </div>
-
+          {/* Register link */}
           <div className="mt-6 text-center">
             <p className="text-black">
               Not registered? <Link to="/register" className="text-blue-500 hover:underline">Click here to register now</Link>

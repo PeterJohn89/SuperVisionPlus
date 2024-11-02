@@ -2,15 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Register() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const userSession = JSON.parse(localStorage.getItem('userSession'));
-    if (userSession && userSession.isUserLoggin) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
-
+  // State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,54 +12,56 @@ function Register() {
   const [superAmount, setSuperAmount] = useState('');
   const [retirementAge, setRetirementAge] = useState('');
   const [retirementGoal, setRetirementGoal] = useState('');
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  const navigate = useNavigate();
 
+  // Effect - Check user is login
+  useEffect(() => {
+    const userSession = JSON.parse(localStorage.getItem('userSession'));
+    if (userSession && userSession.isUserLoggin) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
-
+  // Handle register API
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if (password === confirmPassword) {
-
-      const registrationData = JSON.stringify({
-        email,
-        password,
-        firstName,
-        lastName,
-        dob,
-        superAmount,
-        retirementAge,
-        retirementGoal
-      });
-  
-      try {
-        const response = await fetch('https://zcovudlkqg.execute-api.us-east-1.amazonaws.com/NewUser', {
-          method: 'POST',
-          body: registrationData,
-          headers: {
-            'Content-type' : 'application/json'
-          }
-        });
-  
-        // Check if the response is ok
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-  
-        if (data.success) {
-          navigate('/login?message=You have successfully registered. Please log in.');
-        } else {
-          setError(data.message);
-        }
-      } catch (error) {
-        setError('An error occurred while registering.');
-        console.error('Error:', error);
-      }
-    } else {
-      setError('Passwords do not match');
+    if (password != confirmPassword) {
+      setErrorMessage('Passwords do not match');
+      return;
     }
+    // Register details
+    const registrationData = JSON.stringify({
+      email,
+      password,
+      firstName,
+      lastName,
+      dob,
+      superAmount,
+      retirementAge,
+      retirementGoal
+    });
+  
+    try {
+      const response = await fetch('https://zcovudlkqg.execute-api.us-east-1.amazonaws.com/NewUser', {
+        method: 'POST',
+        body: registrationData,
+        headers: {
+          'Content-type' : 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        navigate('/login?message=You have successfully registered. Please log in.');
+      } else {
+        setErrorMessage(data.message);
+      }
+    } catch (errorMessage) {
+      setErrorMessage('An error occurred while registering.');
+      console.error('Error:', errorMessage);
+    } 
   };
   
   
@@ -77,11 +71,13 @@ function Register() {
       <div className='w-full max-w-3xl p-8 bg-white text-black rounded shadow'>
         <h2 className="text-2xl font-bold text-black mb-6">Register</h2>
         <form onSubmit={handleSubmit}>
-          {error && (
-            <div className="mb-4 text-red-500">
-              <p>{error}</p>
+          {/* Error messages */}
+          {errorMessage && (
+            <div className="mb-4 p-2 bg-red-200 text-red-800 rounded">
+              {errorMessage}
             </div>
           )}
+          {/* Register form */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="mb-4">
               <label className="block text-black text-sm font-bold mb-2" htmlFor="firstName">

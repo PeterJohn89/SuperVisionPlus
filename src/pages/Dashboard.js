@@ -8,13 +8,24 @@ import Logout from '../services/Logout.js';
 import defaultProfile from '../assets/images/defaultProfile.jpg';
 
 function Dashboard() {
+  // State
   const [activeSection, setActiveSection] = useState('SuperVision');
   const [currentUser, setCurrentUser] = useState();
   const [profileImage, setProfileImage] = useState();
 
   const navigate = useNavigate();
 
-  // Function to fetch user data
+  // Check user is login
+  useEffect(() => {
+    const userSession = JSON.parse(localStorage.getItem('userSession'));
+    if (userSession && userSession.isUserLoggin) {
+      navigate('/dashboard');
+    }
+    fetchUserData();
+  }, [navigate]);
+
+    
+  // Get User data
   const fetchUserData = async () => {
     const userSession = JSON.parse(localStorage.getItem('userSession'));
     if (userSession) {
@@ -43,23 +54,14 @@ function Dashboard() {
     }
   };
 
-  // When component initiates run this api call
-  useEffect(() => {
-    const userSession = JSON.parse(localStorage.getItem('userSession'));
-    if (userSession && userSession.isUserLoggin) {
-      navigate('/dashboard');
-    }
-
-    fetchUserData();
-  }, [navigate]);
-
+  // Refresh changed data
   const handleSectionChange = (section) => {
     setActiveSection(section);
     if (section === 'SuperVision') {
       fetchUserData();
     }
   };
-
+  // Links to sidebar
   const renderActiveComponent = () => {
     switch (activeSection) {
       case 'SuperVision':
@@ -76,7 +78,7 @@ function Dashboard() {
         return <SuperVision userData={currentUser} />;
     }
   };
-
+  // Active sidebar class
   const getClass = (section) => {
     return `block p-4 border-b-2 w-full text-left transition ${
       activeSection === section
