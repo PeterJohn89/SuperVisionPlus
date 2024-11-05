@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPiggyBank } from '@fortawesome/free-solid-svg-icons';
 import SuperVision from '../pages/SuperVision.js';
 import Retirement from '../pages/Retirement.js';
 import SuperReports from '../pages/SuperReports.js';
@@ -12,24 +14,28 @@ function Dashboard() {
   const [activeSection, setActiveSection] = useState('SuperVision');
   const [currentUser, setCurrentUser] = useState();
   const [profileImage, setProfileImage] = useState();
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
-  // Check user is login
+  // Check user is logged in
   useEffect(() => {
     const userSession = JSON.parse(localStorage.getItem('userSession'));
     if (userSession && userSession.isUserLoggin) {
       navigate('/dashboard');
     }
-    fetchUserData();
+    fetchUserData(true);
   }, [navigate]);
 
-    
   // Get User data
-  const fetchUserData = async () => {
+  const fetchUserData = async (isLoading) => {
     const userSession = JSON.parse(localStorage.getItem('userSession'));
     if (userSession) {
       const email = userSession.email;
+      if(isLoading){
+        setIsLoading(true);
+      }
+      
       try {
         const response = await fetch(`https://ntv2nwb8ri.execute-api.us-east-1.amazonaws.com/GetUserData?email=${email}`, {
           method: 'GET',
@@ -43,7 +49,6 @@ function Dashboard() {
 
         if (data.success) {
           setCurrentUser(data.data);
-          console.log(data.data);
           setProfileImage(data.data.profileImage);
         } else {
           console.error('Error:', data.message);
@@ -51,6 +56,7 @@ function Dashboard() {
       } catch (err) {
         console.error('Error:', err.message);
       }
+      setIsLoading(false);
     }
   };
 
@@ -58,9 +64,10 @@ function Dashboard() {
   const handleSectionChange = (section) => {
     setActiveSection(section);
     if (section === 'SuperVision') {
-      fetchUserData();
+      fetchUserData(false);
     }
   };
+
   // Links to sidebar
   const renderActiveComponent = () => {
     switch (activeSection) {
@@ -78,6 +85,7 @@ function Dashboard() {
         return <SuperVision userData={currentUser} />;
     }
   };
+
   // Active sidebar class
   const getClass = (section) => {
     return `block p-4 border-b-2 w-full text-left transition ${
@@ -89,9 +97,17 @@ function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-white text-black rounded-lg">
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-blue-900 z-50">
+            <FontAwesomeIcon 
+                icon={faPiggyBank} 
+                className="text-3xl text-white"
+            />
+        </div>
+      )}
       <div className="w-64 text-black flex flex-col p-4 h-screen border-r border-gray-light">
         {/* User Profile Section */}
-        {currentUser ? (
+        {currentUser && (
           <div className="flex items-center mb-8">
             <img
               src={profileImage || defaultProfile}
@@ -102,10 +118,6 @@ function Dashboard() {
               <h2 className="text-xl font-semibold">{currentUser.firstName} {currentUser.lastName}</h2>
               <p className="text-sm text-gray-600">{currentUser.email}</p>
             </div>
-          </div>
-        ) : (
-          <div className="mb-8">
-            <p>Loading user data...</p>
           </div>
         )}
 

@@ -66,7 +66,7 @@ const SuperVision = ({ userData }) => {
             <p className="text-2xl font-bold mt-2">
               {userData?.superannuationBalance !== undefined
                 ? `${Number(userData.superannuationBalance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`
-                : 'Loading...'}
+              : null}
             </p>
           </div>
         </div>
