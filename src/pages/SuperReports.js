@@ -25,14 +25,14 @@ function SuperReports({ userData }) {
     if (!userData) return;
 
     const fetchData = async () => {
-      const initialBalance = Number(userData.superannuationBalance) || 0;
+      const initialBalance = Number(userData.superAmount) || 0;
       const retirementGoal = Number(userData.retirementGoal) || 0;
       const retirementAge = Number(userData.retirementAge) || 0;
       const annualSalary = Number(userData.annualSalary) || 0;
       const additionalContributions = Number(userData.additionalContributions) || 0;
       const contributionFrequency = userData.contributionFrequency ? userData.contributionFrequency.toUpperCase() : 'Y';
 
-      const dob = new Date(userData.DOB);
+      const dob = new Date(userData.dob);
       const currentYear = new Date().getFullYear();
       const currentAge = currentYear - dob.getFullYear();
 

@@ -37,7 +37,7 @@ function Dashboard() {
       if(isLoading){
         setIsLoading(true);
       }
-      console.log(email);
+      
       try {
         const response = await fetch(`https://7gt2ab4lda.execute-api.ap-southeast-2.amazonaws.com/getUser`, {
           method: 'POST',
@@ -51,8 +51,6 @@ function Dashboard() {
 
         const results = await response.json();
         const data = await JSON.parse(results.body);
-
-        console.log(data);
 
         if (data.success) {
           setCurrentUser(data.data);

@@ -16,7 +16,7 @@ function Retirement({ userData }) {
   
   const calculateSavings = () => {
     // Retirement age
-    const dob = new Date(userData.DOB);
+    const dob = new Date(userData.dob);
     const today = new Date();
     const currentAge = today.getFullYear() - dob.getFullYear();
     const yearsToRetire = retirementAge - currentAge;
@@ -54,7 +54,7 @@ function Retirement({ userData }) {
     // Add up total contribution
     const totalEmployerContribution = employerContribution * yearsToRetire;
     const totalUserContributions = userContribution * yearsToRetire;
-    const totalSuperannuation = totalEmployerContribution + totalUserContributions + Number(userData.superannuationBalance);
+    const totalSuperannuation = totalEmployerContribution + totalUserContributions + Number(userData.superAmount);
 
     // Ensure totalSuperannuation is a number
     const totalSuperannuationNumber = Number(totalSuperannuation);
@@ -70,31 +70,29 @@ function Retirement({ userData }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const retirementGoal = Number(totalSuperDisplay);
-    const requestBody = {
-      email: userData.email,
-      retirementGoal: retirementGoal,
-      retirementAge: retirementAge, 
-      employerContributionRate: contributionRate,
-      annualSalary: Number(salary),
-      additionalContributions: Number(additionalContributions),
-      contributionFrequency: contributionFrequency.charAt(0).toUpperCase(), 
-    };
+
+    console.log(retirementGoal);
 
     // API call
     try {
-      const response = await fetch('https://vxjpeqf9wb.execute-api.us-east-1.amazonaws.com/SuperRetirement', {
+      const response = await fetch('https://s9yjz374cf.execute-api.ap-southeast-2.amazonaws.com/retirement', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          body: JSON.stringify(requestBody)
-        }),
+        body: JSON.stringify(
+          {
+            email: userData.email,
+            retirementGoal: retirementGoal
+          }
+        ),
       });
       
       // Response
       const results = await response.json();
       const data = await JSON.parse(results.body);
+
+      console.log(data);
       
       // Result
       if (data.success) {
@@ -206,8 +204,8 @@ function Retirement({ userData }) {
           <p className="text-sm text-gray-600 mt-2">This is only an estimate, and your super can change based on your salary.</p>
           <br></br>
           <p className="text-lg">{userData.firstName}</p>
-          <p className="text-md">Current Age: {new Date().getFullYear() - new Date(userData.DOB).getFullYear()}</p>
-          <p className="text-md mb-4">Years until retirement: {retirementAge - (new Date().getFullYear() - new Date(userData.DOB).getFullYear())}</p>
+          <p className="text-md">Current Age: {new Date().getFullYear() - new Date(userData.dob).getFullYear()}</p>
+          <p className="text-md mb-4">Years until retirement: {retirementAge - (new Date().getFullYear() - new Date(userData.dob).getFullYear())}</p>
 
           <table className="table-auto w-full mt-4 text-left">
             <thead>
@@ -220,7 +218,7 @@ function Retirement({ userData }) {
             <tr>
                 <td className="border px-4 py-2 border-zinc-300">Your Current Super Balance</td>
                 <td className="border px-4 py-2 border-zinc-300">
-                  ${Number(userData.superannuationBalance).toLocaleString()}
+                  ${Number(userData.superAmount).toLocaleString()}
                 </td>
               </tr>
               <tr>

@@ -6,9 +6,8 @@ const YourProfile = ({ userData }) => {
     firstName: userData?.firstName || '',
     lastName: userData?.lastName || '',
     DOB: userData?.DOB || '',
-    superannuationBalance: userData?.superannuationBalance || '',
+    superAmount: userData?.superAmount || '',
     email: userData?.email || '',
-    password: '',
     currentPassword: '',
     newPassword: '',
     profileImage: userData?.profileImage || '',
@@ -53,82 +52,41 @@ const YourProfile = ({ userData }) => {
     });
   };
 
-  // Upload image to backend
-  const handleImageSubmit = async () => {
-    if (!profile.newProfileImage) return;
-
-    // Convert new profile image to Base64 encoded string
-    const newProfileImageBase64 = await toBase64(profile.newProfileImage);
-
-    // Create the request payload
-    const payload = JSON.stringify({
-      email: profile.email,
-      file: newProfileImageBase64,
-      fileType: profile.newProfileImage.type, // Assuming profile.newProfileImage has a `type` property
-    });
-
-    try {
-      const imageResponse = await fetch('https://n4tfhydigh.execute-api.us-east-1.amazonaws.com/SuperImageUpdate', {
-        method: 'POST',
-        body: payload,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const imageData = await imageResponse.json();
-
-      if (imageResponse.ok) {
-        return imageData.imageUrl;
-      } else {
-        showMessage(imageData.message || 'Failed to upload profile image.', 'error');
-        return null;
-      }
-    } catch (error) {
-      showMessage('An error occurred while uploading the profile image.', 'error');
-      console.error('Error:', error);
-      return null;
-    }
-  };
-
   // Handle User details
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Get current profile image
-    let profileImageUrl = profile.profileImage;
-
-    if (profile.newProfileImage) {
-      const uploadedImageUrl = await handleImageSubmit();
-      if (uploadedImageUrl) {
-        profileImageUrl = uploadedImageUrl;
-      } else {
-        return;
-      }
-    }
-
+    // Prepare the payload for the Lambda function
     const updateUser = {
       email: profile.email,
       firstName: profile.firstName,
       lastName: profile.lastName,
       dob: profile.DOB,
-      superAmount: profile.superannuationBalance,
-      profileImage: profileImageUrl,
+      superAmount: profile.superAmount,
     };
 
-    if (profile.currentPassword && profile.newPassword) {
-      updateUser.password = profile.newPassword;
-      updateUser.oldPassword = profile.currentPassword;
+    // Handle profile image upload
+    if (profile.newProfileImage) {
+      const newProfileImageBase64 = await toBase64(profile.newProfileImage);
+      updateUser.newProfileImage = newProfileImageBase64;
     }
-    
+
+    // Check if password update is needed
+    if (profile.currentPassword && profile.newPassword) {
+      updateUser.currentPassword = profile.currentPassword;
+      updateUser.newPassword = profile.newPassword;
+    }
+
     try {
-      const response = await fetch('https://7k3o61h321.execute-api.us-east-1.amazonaws.com/UpdateUser', {
+      const response = await fetch('https://2nnknbwwe2.execute-api.ap-southeast-2.amazonaws.com/updateUser', {
         method: 'POST',
         body: JSON.stringify(updateUser),
         headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await response.json();
+
+      console.log(data);
 
       if (data.success) {
         showMessage('Profile updated successfully!', 'success');
@@ -195,8 +153,8 @@ const YourProfile = ({ userData }) => {
           <label className="block text-sm font-medium text-gray-700">Superannuation Balance ($)</label>
           <input
             type="number"
-            name="superannuationBalance"
-            value={profile.superannuationBalance}
+            name="superAmount"
+            value={profile.superAmount}
             onChange={handleChange}
             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm"
           />
