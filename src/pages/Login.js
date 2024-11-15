@@ -37,18 +37,20 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const body = JSON.stringify({ email, password });
-      const response = await fetch('https://wn7ayl4sac.execute-api.us-east-1.amazonaws.com/superlogin', {
+      const response = await fetch('https://g59o0akc0f.execute-api.ap-southeast-2.amazonaws.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        body: JSON.stringify({ body })
+        body: JSON.stringify({ email, password })
       });
+
+      
 
       const results = await response.json();
       const data = await JSON.parse(results.body);
+
+      console.log(data);
 
       if (data.success) {
         // Set login session

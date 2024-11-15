@@ -91,6 +91,7 @@ const YourProfile = ({ userData }) => {
     }
   };
 
+  // Handle User details
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,7 +107,7 @@ const YourProfile = ({ userData }) => {
       }
     }
 
-    const updateUserPayload = {
+    const updateUser = {
       email: profile.email,
       firstName: profile.firstName,
       lastName: profile.lastName,
@@ -116,20 +117,20 @@ const YourProfile = ({ userData }) => {
     };
 
     if (profile.currentPassword && profile.newPassword) {
-      updateUserPayload.password = profile.newPassword;
-      updateUserPayload.currentPassword = profile.currentPassword;
+      updateUser.password = profile.newPassword;
+      updateUser.oldPassword = profile.currentPassword;
     }
-
+    
     try {
       const response = await fetch('https://7k3o61h321.execute-api.us-east-1.amazonaws.com/UpdateUser', {
         method: 'POST',
-        body: JSON.stringify(updateUserPayload),
+        body: JSON.stringify(updateUser),
         headers: { 'Content-Type': 'application/json' },
       });
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (data.success) {
         showMessage('Profile updated successfully!', 'success');
       } else {
         showMessage(data.message || 'Profile update failed.', 'error');

@@ -65,7 +65,7 @@ const SuperVision = ({ userData }) => {
             <h2 className="text-lg font-semibold">Current Superannuation Balance</h2>
             <p className="text-2xl font-bold mt-2">
               {userData?.superannuationBalance !== undefined
-                ? `${Number(userData.superannuationBalance).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`
+                ? `${Number(userData.superannuationBalance).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`
               : null}
             </p>
           </div>
@@ -78,7 +78,9 @@ const SuperVision = ({ userData }) => {
           <div>
             <h2 className="text-lg font-semibold">Retirement Goal</h2>
             <p className="text-2xl font-bold mt-2">
-              ${userData?.retirementGoal?.toLocaleString() || 'Set your goal in Super Retirement'}
+            {userData?.retirementGoal !== undefined
+                ? `${Number(userData.retirementGoal).toLocaleString('en-AU', { style: 'currency', currency: 'AUD' })}`
+            : null}
             </p>
           </div>
         </div>

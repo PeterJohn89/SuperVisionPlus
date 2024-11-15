@@ -29,16 +29,21 @@ function Dashboard() {
 
   // Get User data
   const fetchUserData = async (isLoading) => {
+
     const userSession = JSON.parse(localStorage.getItem('userSession'));
+
     if (userSession) {
       const email = userSession.email;
       if(isLoading){
         setIsLoading(true);
       }
-      
+      console.log(email);
       try {
-        const response = await fetch(`https://ntv2nwb8ri.execute-api.us-east-1.amazonaws.com/GetUserData?email=${email}`, {
-          method: 'GET',
+        const response = await fetch(`https://7gt2ab4lda.execute-api.ap-southeast-2.amazonaws.com/getUser`, {
+          method: 'POST',
+          body: JSON.stringify({
+            email
+          }),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -46,6 +51,8 @@ function Dashboard() {
 
         const results = await response.json();
         const data = await JSON.parse(results.body);
+
+        console.log(data);
 
         if (data.success) {
           setCurrentUser(data.data);
@@ -73,11 +80,11 @@ function Dashboard() {
     switch (activeSection) {
       case 'SuperVision':
         return <SuperVision userData={currentUser} />;
-      case 'Super Retirement':
+      case 'SuperRetirement':
         return <Retirement userData={currentUser} />;
-      case 'Super Reports':
+      case 'SuperReports':
         return <SuperReports userData={currentUser} />;
-      case 'Your Profile':
+      case 'SuperProfile':
         return <YourProfile userData={currentUser} />;
       case 'Logout':
         return <Logout />;
@@ -133,26 +140,26 @@ function Dashboard() {
             </li>
             <li className="mb-2">
               <button
-                onClick={() => handleSectionChange('Super Retirement')}
-                className={getClass('Super Retirement')}
+                onClick={() => handleSectionChange('SuperRetirement')}
+                className={getClass('SuperRetirement')}
               >
-                Super Retirement
+                SuperRetirement
               </button>
             </li>
             <li className="mb-2">
               <button
-                onClick={() => handleSectionChange('Super Reports')}
-                className={getClass('Super Reports')}
+                onClick={() => handleSectionChange('SuperReports')}
+                className={getClass('SuperReports')}
               >
-                Super Reports
+                SuperReports
               </button>
             </li>
             <li className="mb-2">
               <button
-                onClick={() => handleSectionChange('Your Profile')}
-                className={getClass('Your Profile')}
+                onClick={() => handleSectionChange('SuperProfile')}
+                className={getClass('SuperProfile')}
               >
-                Your Profile
+                SuperProfile
               </button>
             </li>
             <li className="mb-2">

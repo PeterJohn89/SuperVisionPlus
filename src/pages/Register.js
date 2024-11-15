@@ -32,27 +32,27 @@ function Register() {
       setErrorMessage('Passwords do not match');
       return;
     }
-    // Register details
-    const registrationData = JSON.stringify({
-      email,
-      password,
-      firstName,
-      lastName,
-      dob,
-      superAmount,
-      retirementAge,
-      retirementGoal
-    });
   
     try {
-      const response = await fetch('https://zcovudlkqg.execute-api.us-east-1.amazonaws.com/NewUser', {
+      const response = await fetch('https://5m01sd5p59.execute-api.ap-southeast-2.amazonaws.com/registration', {
         method: 'POST',
-        body: registrationData,
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          dob,
+          superAmount,
+          retirementAge,
+          retirementGoal
+        }),
         headers: {
           'Content-type' : 'application/json'
         }
       });
+      
       const data = await response.json();
+
       if (data.success) {
         navigate('/login?message=You have successfully registered. Please log in.');
       } else {
