@@ -51,7 +51,8 @@ function Register() {
         }
       });
       
-      const data = await response.json();
+      const results = await response.json();
+      const data = await JSON.parse(results.body);
 
       if (data.success) {
         navigate('/login?message=You have successfully registered. Please log in.');

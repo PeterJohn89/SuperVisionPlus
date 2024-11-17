@@ -70,9 +70,6 @@ function Retirement({ userData }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const retirementGoal = Number(totalSuperDisplay);
-
-    console.log(retirementGoal);
-
     // API call
     try {
       const response = await fetch('https://s9yjz374cf.execute-api.ap-southeast-2.amazonaws.com/retirement', {
@@ -83,7 +80,8 @@ function Retirement({ userData }) {
         body: JSON.stringify(
           {
             email: userData.email,
-            retirementGoal: retirementGoal
+            retirementGoal: retirementGoal,
+            retirementAge: retirementAge
           }
         ),
       });

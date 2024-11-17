@@ -32,11 +32,35 @@ const YourProfile = ({ userData }) => {
   // Attach image function
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      newProfileImage: file,
-      profileImage: URL.createObjectURL(file),
-    }));
+    resizeImage(file).then((resizedImage) => {
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        newProfileImage: resizedImage,
+        profileImage: URL.createObjectURL(resizedImage),
+      }));
+    });
+  };
+
+  // Resize image using canvas
+  const resizeImage = (file) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas dimensions
+        canvas.width = 250;
+        canvas.height = img.height * (120 / img.width);
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/jpeg');
+      };
+    });
   };
 
   // Convert image to Base64
@@ -84,7 +108,8 @@ const YourProfile = ({ userData }) => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const data = await response.json();
+      const results = await response.json();
+      const data = await JSON.parse(results.body);
 
       console.log(data);
 

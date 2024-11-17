@@ -113,17 +113,21 @@ function Dashboard() {
       <div className="w-64 text-black flex flex-col p-4 h-screen border-r border-gray-light">
         {/* User Profile Section */}
         {currentUser && (
-          <div className="flex items-center mb-8">
-            <img
-              src={profileImage || defaultProfile}
-              alt={`${currentUser.firstName} ${currentUser.lastName}`}
-              className="w-16 h-16 rounded-full mr-4"
-            />
-            <div>
-              <h2 className="text-xl font-semibold">{currentUser.firstName} {currentUser.lastName}</h2>
-              <p className="text-sm text-gray-600">{currentUser.email}</p>
-            </div>
+      <div className="flex flex-row items-center">
+          <img 
+            src={currentUser.profileImage} 
+            alt="Profile" 
+            className="w-16 h-16 rounded-full object-cover shrink-0 mb-4" 
+          />
+        <div className="ml-4">
+          <div className="font-bold">
+            {currentUser.firstName} {currentUser.lastName}
           </div>
+          <div>
+           <p className="text-gray-600 text-xs">{currentUser.email}</p>
+          </div>
+        </div>
+      </div>
         )}
 
         <nav>

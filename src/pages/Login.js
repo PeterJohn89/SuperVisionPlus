@@ -49,8 +49,6 @@ function Login() {
       const results = await response.json();
       const data = await JSON.parse(results.body);
 
-      console.log(data);
-
       if (data.success) {
         // Set login session
         localStorage.setItem('userSession', JSON.stringify({ email: data.email, isLoggedIn: true }));
